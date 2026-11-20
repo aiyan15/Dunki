@@ -1,8 +1,10 @@
 // src/lib/api.js
 import axios from 'axios'
 
+const configuredApiUrl = import.meta.env.VITE_API_URL?.trim().replace(/\/+$/, '')
+const productionApiUrl = 'https://dunki-production.up.railway.app/api'
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL?.replace(/\/+$/, '') || '/api',
+  baseURL: configuredApiUrl || (import.meta.env.PROD ? productionApiUrl : '/api'),
 })
 
 // attach token automatically to every request

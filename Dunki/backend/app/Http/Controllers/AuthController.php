@@ -17,10 +17,16 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
+        $request->merge([
+            'name' => is_string($request->input('name')) ? trim($request->input('name')) : $request->input('name'),
+            'email' => is_string($request->input('email')) ? mb_strtolower(trim($request->input('email'))) : $request->input('email'),
+            'phone' => is_string($request->input('phone')) ? trim($request->input('phone')) : $request->input('phone'),
+        ]);
+
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email',
-            'phone' => 'required|string|unique:users,phone',
+            'phone' => 'required|string|max:20|unique:users,phone',
             'password' => 'required|string|min:8',
             'role' => 'required|in:worker,agency,nominee',
             'destination' => 'nullable|string|max:255',

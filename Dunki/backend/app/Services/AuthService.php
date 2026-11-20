@@ -13,7 +13,9 @@ class AuthService
      */
     public function register(array $data): array
     {
-        $trackingId = 'DNK-' . date('Y') . '-' . str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        do {
+            $trackingId = 'DNK-' . date('Y') . '-' . str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        } while (User::where('tracking_id', $trackingId)->exists());
 
         $user = User::create([
             'name' => $data['name'],

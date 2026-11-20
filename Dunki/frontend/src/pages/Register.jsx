@@ -23,15 +23,30 @@ export default function Register() {
     setError('')
     setLoading(true)
     try {
-      const user = await register({ name, email, phone, password, role })
+      const user = await register({
+        name: name.trim(),
+        email: email.trim().toLowerCase(),
+        phone: phone.trim(),
+        password,
+        role,
+      })
       if ((user.role === 'worker' || user.role === 'agency') && user.verification_status !== 'verified') {
         navigate('/verify')
       } else {
         navigate(user.role === 'agency' ? '/jobs' : '/dashboard')
       }
     } catch (err) {
-      const messages = err.response?.data?.errors
-      setError(messages ? Object.values(messages).flat().join(' ') : 'Registration failed.')
+      const data = err.response?.data
+      const messages = data?.errors
+      if (messages) {
+        setError(Object.values(messages).flat().join(' '))
+      } else if (data?.message) {
+        setError(data.message)
+      } else if (err.code === 'ERR_NETWORK') {
+        setError('Could not reach the server. Check your API URL and Railway deployment status.')
+      } else {
+        setError('Registration failed. Please try again.')
+      }
     } finally {
       setLoading(false)
     }
