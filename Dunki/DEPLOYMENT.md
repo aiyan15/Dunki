@@ -12,12 +12,14 @@ Deploy the React/Vite frontend to Vercel. Laravel is a separate PHP API and must
 
 ## Laravel API on Railway
 
-1. In Railway, create a project from this GitHub repository and add a service from the repository. Set the service **Root Directory** to `/backend`; Railway will build `backend/Dockerfile`.
+1. In Railway, create a service from this GitHub repository. The Git repository root contains the `Dunki/` folder, so set the service **Root Directory** to `/Dunki/backend` (not `/backend` or `/Dunki`). Set the service **Builder** to **Dockerfile** and the Dockerfile path to `/Dunki/backend/Dockerfile` if Railway does not detect it automatically. This makes the build context contain `artisan`, `composer.json`, and the Laravel source instead of the monorepo wrapper.
 2. Add a MySQL service. In the Laravel service, configure `APP_ENV=production`, `APP_DEBUG=false`, `APP_KEY`, `APP_URL`, and `DB_CONNECTION=mysql`. Map `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, and `DB_PASSWORD` to the MySQL service's connection variables. Do not commit a `.env` file or secrets.
 3. Generate an application key with `php artisan key:generate --show` in a local backend install and set the returned value as Railway's `APP_KEY`. The command requires Composer dependencies to be installed.
 4. Set the Railway health check path to `/up`, then generate a public domain for the Laravel service. The Dockerfile listens on Railway's injected `PORT`.
 5. Add a Railway pre-deploy command `php artisan migrate --force` after the database variables are connected. This runs migrations before a new application deployment starts.
 6. Set Vercel's `VITE_API_URL` to the Railway public URL ending in `/api`, then redeploy the frontend.
+
+If the build log still says Railpack analyzed `./` and only found `.github/` and `Dunki/`, that deployment did not use the updated service settings. Trigger a new deployment after saving the root directory and Dockerfile builder; restarting an old deployment will not change its build context.
 
 The API also needs MongoDB Atlas settings for assistant/vector features:
 
